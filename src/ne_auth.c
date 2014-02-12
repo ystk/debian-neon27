@@ -46,7 +46,12 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/rand.h>
 #elif defined(HAVE_GNUTLS)
+#include <gnutls/gnutls.h>
+#if LIBGNUTLS_VERSION_NUMBER < 0x020b00
 #include <gcrypt.h>
+#else
+#include <gnutls/crypto.h>
+#endif
 #endif
 
 #include <errno.h>
@@ -316,7 +321,11 @@ static char *get_cnonce(void)
 
 #ifdef HAVE_GNUTLS
     if (1) {
+#if LIBGNUTLS_VERSION_NUMBER < 0x020b00
         gcry_create_nonce(data, sizeof data);
+#else
+        gnutls_rnd(GNUTLS_RND_NONCE, data, sizeof data);
+#endif
         ne_md5_process_bytes(data, sizeof data, hash);
     }
     else
@@ -567,7 +576,7 @@ static int verify_negotiate_response(struct auth_request *req, auth_session *ses
     int ret;
     ne_buffer *errmsg = NULL;
 
-    if (strncmp(hdr, "Negotiate", ptr - duphdr) != 0) {
+    if (!ptr || strncmp(hdr, "Negotiate", ptr - duphdr) != 0) {
         ne_set_error(sess->sess, _("Negotiate response verification failed: "
                                    "invalid response header token"));
         ne_free(duphdr);
@@ -610,11 +619,8 @@ static char *request_sspi(auth_session *sess, struct auth_request *request)
         return NULL;
 }
 
-static int sspi_challenge(auth_session *sess, int attempt,
-                          struct auth_challenge *parms,
-                          ne_buffer **errmsg) 
+static int continue_sspi(auth_session *sess, int ntlm, const char *hdr)
 {
-    int ntlm = ne_strcasecmp(parms->protocol->name, "NTLM") == 0;
     int status;
     char *response = NULL;
     
@@ -634,17 +640,52 @@ static int sspi_challenge(auth_session *sess, int attempt,
         }
     }
     
-    status = ne_sspi_authenticate(sess->sspi_context, parms->opaque, &response);
+    status = ne_sspi_authenticate(sess->sspi_context, hdr, &response);
     if (status) {
         return status;
     }
-    
-    sess->sspi_token = response;
-    
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge [%s]\n", sess->sspi_token);
-    
+
+    if (response && *response) {
+        sess->sspi_token = response;
+        
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge [%s]\n", sess->sspi_token);
+    }
+
     return 0;
 }
+
+static int sspi_challenge(auth_session *sess, int attempt,
+                          struct auth_challenge *parms,
+                          ne_buffer **errmsg) 
+{
+    int ntlm = ne_strcasecmp(parms->protocol->name, "NTLM") == 0;
+
+    return continue_sspi(sess, ntlm, parms->opaque);
+}
+
+static int verify_sspi(struct auth_request *req, auth_session *sess,
+                       const char *hdr)
+{
+    int ntlm = ne_strncasecmp(hdr, "NTLM ", 5) == 0;
+    char *ptr = strchr(hdr, ' ');
+
+    if (!ptr) {
+        ne_set_error(sess->sess, _("SSPI response verification failed: "
+                                   "invalid response header token"));
+        return NE_ERROR;
+    }
+
+    while(*ptr == ' ')
+        ptr++;
+
+    if (*ptr == '\0') {
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: No token in SSPI response!\n");
+        return NE_OK;
+    }
+
+    return continue_sspi(sess, ntlm, ptr);
+}
+
 #endif
 
 /* Parse the "domain" challenge parameter and set the domains array up
@@ -1200,7 +1241,7 @@ static const struct auth_protocol protocols[] = {
       sspi_challenge, request_sspi, NULL,
       AUTH_FLAG_OPAQUE_PARAM|AUTH_FLAG_VERIFY_NON40x|AUTH_FLAG_CONN_AUTH },
     { NE_AUTH_GSSAPI, 30, "Negotiate",
-      sspi_challenge, request_sspi, NULL,
+      sspi_challenge, request_sspi, verify_sspi,
       AUTH_FLAG_OPAQUE_PARAM|AUTH_FLAG_VERIFY_NON40x|AUTH_FLAG_CONN_AUTH },
 #endif
 #ifdef HAVE_NTLM
@@ -1508,8 +1549,10 @@ static int ah_post_send(ne_request *req, void *cookie, const ne_status *status)
                             sess->protocol 
                             && (sess->protocol->flags & AUTH_FLAG_CONN_AUTH));
     }
+
 #ifdef HAVE_SSPI
-    else if (sess->sspi_context) {
+    /* Clear the SSPI context after successfull authentication. */
+    if ((status->klass == 2 || status->klass == 3) && sess->sspi_context) {
         ne_sspi_clear_context(sess->sspi_context);
     }
 #endif
