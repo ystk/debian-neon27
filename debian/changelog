@@ -1,3 +1,43 @@
+neon27 (0.29.6-3) unstable; urgency=low
+
+  * Add missing ne_ssl_context_get_flag() for GnuTLS flavour (closes: #667043).
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Fri, 06 Apr 2012 01:54:28 +0200
+
+neon27 (0.29.6-2) unstable; urgency=low
+
+  * Make Neon recognize that SSLv2 functions were disabled (closes: #622140).
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Tue, 03 Apr 2012 00:59:52 +0200
+
+neon27 (0.29.6-1) unstable; urgency=low
+
+  * New upstream release, fixes building with new OpenSSL (closes: #622140).
+  * Convert to 3.0 (quilt) source format.
+  * Drop old transitional libneon25-dev .
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Mon, 04 Jul 2011 23:43:29 +0200
+
+neon27 (0.29.5-3) unstable; urgency=medium
+
+  * Don't use \ for line continuation in the parameter of
+    dh_makeshlibs (closes: #607819).
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Wed, 22 Dec 2010 20:17:27 +0100
+
+neon27 (0.29.5-2) unstable; urgency=low
+
+  * Set shlibs-version to match Debian package version 0.29.3-3 ; this will
+    let other packages enter Squeeze during freeze.
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Fri, 17 Dec 2010 21:49:24 +0100
+
+neon27 (0.29.5-1) unstable; urgency=low
+
+  * New upstream release, remove all backported patches.
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.hu>  Thu, 09 Dec 2010 22:25:09 +0100
+
 neon27 (0.29.3-3) unstable; urgency=low
 
   * Fix client certificate negotiation with a patch that got included in

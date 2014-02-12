@@ -16,6 +16,7 @@ Known values for OPTION are:
 
   --prefix=DIR		change neon prefix [default $prefix]
   --libs		print library linking information
+  --la-file		print location of libtool .la file
   --cflags		print pre-processor and compiler flags
   --help		display this help and exit
   --version		output version information
@@ -72,12 +73,16 @@ while test $# -gt 0; do
        	;;
 
     --libs)
-        LIBS="-lneon @NEON_LTLIBS@"
+        LIBS="-lneon @NEON_LIBS@"
 	# Don't add standard library paths
         if test "$prefix" != "/usr"; then
            LIBS="-L${libdir} ${LIBS}"
         fi
 	echo @user_LDFLAGS@ ${LIBS}
+	;;
+
+    --la-file)
+	echo ${libdir}/libneon.la
 	;;
 
     --support)

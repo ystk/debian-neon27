@@ -1,3 +1,25 @@
+Changes in release 0.29.6:
+* Don't abort SSL handshake with GnuTLS if a client cert is requested
+  but none is configured/available (thanks to Patrick Ohly)
+* Fix GnuTLS build with Nettle (Arfrever Frehtes Taifersar Arahesis)
+* Win32: Fix handling of SSPI challenges (Ivan Zhakov)
+* Fix the method string passed to create_request hooks to have the same
+  lifetime as the request object (Patrick Ohly)
+* Docs updates.
+
+Changes in release 0.29.5:
+* Fix GnuTLS handshakes failures with 'TLS warning alert' (Bryan Cain)
+* Further fix for SSPI support on Win32 (Danil Shopyrin)
+
+Changes in release 0.29.4:
+* Fix SNI support (Tobias Gruetzmacher)
+* Fix possible Solaris linker errors if building static library
+* Win32: Fix Kerberos authentication support with SSPI (Danil Shopyrin)
+* Fix error handling when pulling a request body from an file
+  (thanks to Lou Montulli)
+* Fix ne_request_dispatch() return value for SOCKS proxy failure cases
+* Tighten SSL cert ID checks to deny a wildcard match against an IP address
+
 Changes in release 0.29.3:
 * Change ne_sock_close() to no longer wait for SSL closure alert:
  - fixes possible hang with IIS servers when closing SSL connection

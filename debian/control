@@ -2,15 +2,15 @@ Source: neon27
 Section: net
 Priority: optional
 Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.hu>
-Build-Depends: debhelper (>= 5.0.0), pkg-config, libxml2-dev, libssl-dev (>= 0.9.8c), libgnutls-dev (>= 2.8.3), libkrb5-dev, libz-dev, autotools-dev, binutils (>= 2.14.90.0.7), ca-certificates, chrpath, dpatch
+Build-Depends: debhelper (>= 5.0.0), pkg-config, libxml2-dev, libssl-dev (>= 0.9.8c), libgnutls-dev (>= 2.8.3), libkrb5-dev, libz-dev, autotools-dev, binutils (>= 2.14.90.0.7), ca-certificates, chrpath
 Homepage: http://www.webdav.org/neon/
-Standards-Version: 3.9.1
+Standards-Version: 3.9.3
 
 Package: libneon27
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: An HTTP and WebDAV client library
+Description: HTTP and WebDAV client library
  neon is an HTTP and WebDAV client library, with a C language API.
  .
  WARNING: THE NEON API IS NOT YET STABLE.
@@ -69,7 +69,7 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: ca-certificates
-Description: An HTTP and WebDAV client library (GnuTLS enabled)
+Description: HTTP and WebDAV client library (GnuTLS enabled)
  neon is an HTTP and WebDAV client library, with a C language API.
  .
  WARNING: THE NEON API IS NOT YET STABLE.
@@ -124,13 +124,3 @@ Description: Detached symbols for libneon27 (GnuTLS enabled)
  Neon provides lower-level interfaces to directly implement new HTTP
  methods, and higher-level interfaces so that you don't have to
  worry about the lower-level stuff.
-
-Package: libneon25-dev
-Section: libdevel
-Architecture: any
-Conflicts: libneon24-doc (<= 0.24.5-1)
-Depends: ${misc:Depends}, libneon27-dev (= ${binary:Version}) | libneon27-gnutls-dev (= ${binary:Version})
-Description: Header and static library files for libneon25
- This is a transitional package to neon27.
- .
- You may safely remove this package.

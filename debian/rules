@@ -1,6 +1,4 @@
 #!/usr/bin/make -f
-include /usr/share/dpatch/dpatch.make
-
 package=libneon27
 upstream-version=$(shell head -n 1 debian/changelog | sed -e 's/.*(\(\([0-9]\+:\)\?\([^-]\+\).*\).*).*/\3/' )
 
@@ -19,7 +17,7 @@ CONFIG_COMMON=  --enable-shared			\
 		--with-libxml2
 CFLAGS="-O2 -g"
 
-${BUILDDIR}/neon-openssl/config.status: patch configure
+${BUILDDIR}/neon-openssl/config.status: configure
 	cp  /usr/share/misc/config.guess \
 	    /usr/share/misc/config.sub \
 	  ./
@@ -28,7 +26,7 @@ ${BUILDDIR}/neon-openssl/config.status: patch configure
 	                CFLAGS=$(CFLAGS) $(CURDIR)/configure ${CONFIG_COMMON} \
 			--with-ssl=openssl
 
-${BUILDDIR}/neon-gnutls/config.status: patch configure
+${BUILDDIR}/neon-gnutls/config.status: configure
 	cp  /usr/share/misc/config.guess \
 	    /usr/share/misc/config.sub \
 	  ./
@@ -37,6 +35,9 @@ ${BUILDDIR}/neon-gnutls/config.status: patch configure
 	                CFLAGS=$(CFLAGS) $(CURDIR)/configure ${CONFIG_COMMON} \
 			--with-ca-bundle=/etc/ssl/certs/ca-certificates.crt \
 			--with-ssl=gnutls
+
+build-arch: build
+build-indep: build
 
 build: build-openssl build-gnutls
 build-openssl: ${BUILDDIR}/neon-openssl/config.status
@@ -59,7 +60,7 @@ build-gnutls: ${BUILDDIR}/neon-gnutls/config.status
 
 	touch build-gnutls
 
-clean: unpatch
+clean:
 	dh_testdir
 	dh_testroot
 	-rm -f build-openssl build-gnutls install-openssl install-gnutls \
@@ -91,9 +92,6 @@ install-openssl: build-openssl
 		debian/$(package)/usr/share/man \
 		debian/$(package)/usr/lib/pkgconfig
 
-	install -d $(DESTDIR)/$(package)-dev/usr/share/lintian/overrides/
-	install -m0644 $(CURDIR)/debian/$(package)-dev.lintian $(DESTDIR)/$(package)-dev/usr/share/lintian/overrides/$(package)-dev
-
 	touch install-openssl
 
 install-gnutls: build-gnutls
@@ -114,13 +112,6 @@ install-gnutls: build-gnutls
 		debian/$(package)-gnutls/usr/share/man \
 		debian/$(package)-gnutls/usr/lib/pkgconfig
 
-	install -d $(DESTDIR)/$(package)-gnutls/usr/share/lintian/overrides/ \
-		$(DESTDIR)/$(package)-gnutls-dev/usr/share/lintian/overrides/
-	install -m0644 $(CURDIR)/debian/$(package)-gnutls.lintian \
-		$(DESTDIR)/$(package)-gnutls/usr/share/lintian/overrides/$(package)-gnutls
-	install -m0644 $(CURDIR)/debian/$(package)-gnutls-dev.lintian \
-		$(DESTDIR)/$(package)-gnutls-dev/usr/share/lintian/overrides/$(package)-gnutls-dev
-
 	touch install-gnutls
 
 
@@ -137,7 +128,8 @@ binary-arch: build install
 
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a AUTHORS BUGS NEWS README THANKS TODO
-	dh_makeshlibs -V
+	dh_makeshlibs -p$(package) -V'$(package)'
+	dh_makeshlibs -p$(package)-gnutls -V'$(package)-gnutls'
 	dh_link
 	dh_strip -p$(package) --dbg-package=$(package)-dbg
 	dh_strip -p$(package)-gnutls --dbg-package=$(package)-gnutls-dbg
