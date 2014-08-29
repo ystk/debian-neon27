@@ -1,8 +1,13 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
+
 package=libneon27
 upstream-version=$(shell head -n 1 debian/changelog | sed -e 's/.*(\(\([0-9]\+:\)\?\([^-]\+\).*\).*).*/\3/' )
 
-# export DH_VERBOSE=1
+export KRB5_CONFIG=/usr/bin/krb5-config.mit
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
 
 BUILDDIR=$(CURDIR)/debian/build-tree/
 DESTDIR=$(CURDIR)/debian/
@@ -17,19 +22,18 @@ CONFIG_COMMON=  --enable-shared			\
 		--with-libxml2
 CFLAGS="-O2 -g"
 
-${BUILDDIR}/neon-openssl/config.status: configure
-	cp  /usr/share/misc/config.guess \
-	    /usr/share/misc/config.sub \
-	  ./
+build-autoreconf:
+	LIBTOOLIZE='libtoolize --install' dh_autoreconf \
+		autoreconf -- -f -i -I macros
+	touch build-autoreconf
+
+${BUILDDIR}/neon-openssl/config.status: build-autoreconf
 	install -d $(BUILDDIR)/neon-openssl
 	cd $(BUILDDIR)/neon-openssl/ && \
 	                CFLAGS=$(CFLAGS) $(CURDIR)/configure ${CONFIG_COMMON} \
 			--with-ssl=openssl
 
-${BUILDDIR}/neon-gnutls/config.status: configure
-	cp  /usr/share/misc/config.guess \
-	    /usr/share/misc/config.sub \
-	  ./
+${BUILDDIR}/neon-gnutls/config.status: build-autoreconf
 	install -d $(BUILDDIR)/neon-gnutls
 	cd $(BUILDDIR)/neon-gnutls/ && \
 	                CFLAGS=$(CFLAGS) $(CURDIR)/configure ${CONFIG_COMMON} \
@@ -43,7 +47,7 @@ build: build-openssl build-gnutls
 build-openssl: ${BUILDDIR}/neon-openssl/config.status
 	dh_testdir
 	cd $(BUILDDIR)/neon-openssl/ && $(MAKE)
-#	cd $(BUILDDIR)/neon-openssl/ && $(MAKE) check
+	cd $(BUILDDIR)/neon-openssl/ && $(MAKE) check
 
 	touch build-openssl
 
@@ -63,13 +67,14 @@ build-gnutls: ${BUILDDIR}/neon-gnutls/config.status
 clean:
 	dh_testdir
 	dh_testroot
-	-rm -f build-openssl build-gnutls install-openssl install-gnutls \
+	-rm -f build-autoreconf build-openssl build-gnutls \
+	    install-openssl install-gnutls \
 	    macros/changelog.m4
-	-rm -f config.sub config.guess
 	rm -rf $(BUILDDIR)
 	[ ! -f Makefile ] || $(MAKE) distclean
 	-rm -rf Makefile src/Makefile test/Makefile config.h config.cache config.log config.status
 	-rm -rf libtool neon-config src/.libs src/*.o
+	dh_autoreconf_clean
 	dh_clean
 
 

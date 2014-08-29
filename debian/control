@@ -1,10 +1,10 @@
 Source: neon27
 Section: net
 Priority: optional
-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.hu>
-Build-Depends: debhelper (>= 5.0.0), pkg-config, libxml2-dev, libssl-dev (>= 0.9.8c), libgnutls-dev (>= 2.8.3), libkrb5-dev, libz-dev, autotools-dev, binutils (>= 2.14.90.0.7), ca-certificates, chrpath
+Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+Build-Depends: debhelper (>= 9), pkg-config, libxml2-dev, libssl-dev (>= 0.9.8c), libgnutls28-dev, krb5-multidev, libz-dev, dh-autoreconf, binutils (>= 2.14.90.0.7), ca-certificates, chrpath
 Homepage: http://www.webdav.org/neon/
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 
 Package: libneon27
 Section: libs
@@ -43,7 +43,7 @@ Architecture: any
 Conflicts: libneon-dev, libneon24-doc (<= 0.24.5-1), libneon25-dev (<< 0.28.2-5), libneon27-gnutls-dev
 Provides: libneon-dev
 Replaces: libneon-dev, libneon25-dev, libneon27-gnutls-dev
-Depends: ${misc:Depends}, libneon27 (= ${binary:Version}), libssl-dev, libxml2-dev, libkrb5-dev, pkg-config
+Depends: ${misc:Depends}, libneon27 (= ${binary:Version}), libssl-dev, libxml2-dev, krb5-multidev, pkg-config
 Description: Header and static library files for libneon27
  This package contains the headers and the static library for libneon27.
  .
@@ -102,8 +102,8 @@ Architecture: any
 Conflicts: libneon-dev, libneon24-doc (<= 0.24.5-1), libneon25-dev (<< 0.28.2-5), libneon27-dev
 Provides: libneon-dev
 Replaces: libneon-dev, libneon25-dev, libneon27-dev
-Depends: ${misc:Depends}, libneon27-gnutls (= ${binary:Version}), libgnutls-dev, libxml2-dev, 
- libkrb5-dev, pkg-config
+Depends: ${misc:Depends}, libneon27-gnutls (= ${binary:Version}),
+ libgnutls28-dev, libxml2-dev, krb5-multidev, pkg-config
 Description: Header and static library files for libneon27 (GnuTLS enabled)
  This package contains the headers and the static library for 
  libneon27-gnutls.

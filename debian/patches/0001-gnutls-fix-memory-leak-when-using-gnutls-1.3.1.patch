@@ -1,0 +1,31 @@
+Description: fix memory leak when using gnutls >= 1.3.1
+ When using gnutls_session_get_data2() to allocate
+ ctx->cache.client.data, we must free it with gnutls_free to deallocate
+ it.
+ .
+ When using an older gnutls without that method, we allocate the data
+ ourselves and must continue to use ne_free().
+ .
+ Originally reported by Werner Baumann.
+
+Author: Patrick Ohly <patrick.ohly@intel.com>
+Bug-Debian: http://bugs.debian.org/756608
+Forwarded: http://lists.manyfish.co.uk/pipermail/neon/2014-July/001570.html
+Last-Update: 2014-08-01
+
+---
+
+--- neon27-0.30.0.orig/src/ne_gnutls.c
++++ neon27-0.30.0/src/ne_gnutls.c
+@@ -694,7 +694,11 @@ void ne_ssl_context_destroy(ne_ssl_conte
+ {
+     gnutls_certificate_free_credentials(ctx->cred);
+     if (ctx->cache.client.data) {
++#if defined(HAVE_GNUTLS_SESSION_GET_DATA2)
++        gnutls_free(ctx->cache.client.data);
++#else
+         ne_free(ctx->cache.client.data);
++#endif
+     } else if (ctx->cache.server.key.data) {
+         gnutls_free(ctx->cache.server.key.data);
+         gnutls_free(ctx->cache.server.data.data);

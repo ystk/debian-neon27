@@ -1,3 +1,38 @@
+neon27 (0.30.0-4) unstable; urgency=low
+
+  [ Patrick Ohly <patrick.ohly@intel.com> ]
+  * Fix memory leak when using gnutls >= 1.3.1 (closes: #756608).
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Fri, 01 Aug 2014 04:54:56 +0000
+
+neon27 (0.30.0-3) unstable; urgency=low
+
+  * Swich to gnutls28 (closes: #752238).
+  * Enable OpenSSL testsuite.
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Sat, 21 Jun 2014 17:21:25 +0000
+
+neon27 (0.30.0-2) unstable; urgency=low
+
+  * Move to debhelper level 9 and Standards-Version 3.9.5 .
+  * Sync with Ubuntu.
+
+  [ Colin Watson <cjwatson@ubuntu.com> ]
+  * Use dh-autoreconf to update libtool.m4 for new ports (closes: #732548).
+
+  [ Jelmer Vernooij <jelmer@debian.org> ]
+  * Depend on krb5-multidev rather than libkrb5-dev. Closes: #745328
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Thu, 24 Apr 2014 12:29:07 +0000
+
+neon27 (0.30.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Remove disabled_SSLv2_support.patch (closes: #702554), this release
+    contains it.
+
+ -- Laszlo Boszormenyi (GCS) <gcs@debian.org>  Thu, 22 Aug 2013 19:11:29 +0200
+
 neon27 (0.29.6-3) unstable; urgency=low
 
   * Add missing ne_ssl_context_get_flag() for GnuTLS flavour (closes: #667043).
